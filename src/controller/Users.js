@@ -24,27 +24,27 @@ exports.getUsers = async (req, res) => {
 
 // Delete Users By ID
 exports.deleteUsers = async (req, res) => {
-    try {
-      const { id } = req.params;
-  
-      const users = await User.destroy({
-        where: {
-          id,
-        },
-        attributes: {
-            exclude: ["fullName","password", "token", "createdAt", "updatedAt"],
-          },
-      });
-      res.send({
-        status: "Success",
-        data: {
-          id: id,
-        },
-      });
-    } catch (err) {
-      console.log(err);
-      res.status(500).send({
-        status: "Server Error",
-      });
-    }
-  };
+  try {
+    const { id } = req.params;
+
+    await User.destroy({
+      where: {
+        id,
+      },
+      attributes: {
+        exclude: ["fullName", "password", "token", "createdAt", "updatedAt"],
+      },
+    });
+    res.send({
+      status: "Success",
+      data: {
+        id: id,
+      },
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).send({
+      status: "Server Error",
+    });
+  }
+};

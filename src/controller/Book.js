@@ -17,7 +17,7 @@ exports.getBooks = async (req, res) => {
       },
     });
   } catch (error) {
-    console.log(err);
+    console.log(error);
     res.status(500).send({
       status: "Server Error",
     });
@@ -44,7 +44,7 @@ exports.getBooksDetail = async (req, res) => {
       },
     });
   } catch (error) {
-    console.log(err);
+    console.log(error);
     res.status(500).send({
       status: "Server Error",
     });
@@ -88,8 +88,8 @@ exports.addBooks = async (req, res) => {
         book,
       },
     });
-  } catch (err) {
-    console.log(err);
+  } catch (error) {
+    console.log(error);
     res.status(500).send({
       status: "Server Error",
     });
@@ -131,13 +131,13 @@ exports.editBooks = async (req, res) => {
         message: error.details[0].message,
       });
 
-      const book = await Book.update(req.body, {
-        where: {
-          id,
-        },
-      });
+    const book = await Book.update(req.body, {
+      where: {
+        id,
+      },
+    });
 
-      const booksUpdated = await Book.findOne({
+    const booksUpdated = await Book.findOne({
       where: {
         id,
       },
@@ -157,8 +157,8 @@ exports.editBooks = async (req, res) => {
         booksUpdated,
       },
     });
-  } catch (err) {
-    console.log(err);
+  } catch (error) {
+    console.log(error);
     res.status(500).send({
       status: "Server Error",
     });
@@ -167,36 +167,36 @@ exports.editBooks = async (req, res) => {
 
 // Delete Book By ID
 exports.deleteBooks = async (req, res) => {
-    try {
-      const { id } = req.params;
+  try {
+    const { id } = req.params;
 
-      const books = await Book.findOne({
-        where: {
-          id,
-        },
-      });
-  
-      if (!books) {
-        return res.send({
-          message: `Book with id ${id} Not Existed`,
-        });
-      }
-  
-      await Book.destroy({
-        where: {
-          id,
-        },
-      });
-      res.send({
-        status: "Success",
-        data: {
-          id: id,
-        },
-      });
-    } catch (err) {
-      console.log(err);
-      res.status(500).send({
-        status: "Server Error",
+    const books = await Book.findOne({
+      where: {
+        id,
+      },
+    });
+
+    if (!books) {
+      return res.send({
+        message: `Book with id ${id} Not Existed`,
       });
     }
-  };
+
+    await Book.destroy({
+      where: {
+        id,
+      },
+    });
+    res.send({
+      status: "Success",
+      data: {
+        id: id,
+      },
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      status: "Server Error",
+    });
+  }
+};

@@ -7,7 +7,6 @@ exports.addTransaction = async (req, res) => {
   try {
     const schema = Joi.object({
       userId: Joi.number().required(),
-      transferProof: Joi.string().required(),
     });
 
     const { error } = schema.validate(req.body);
@@ -37,7 +36,7 @@ exports.addTransaction = async (req, res) => {
 
       const transaction = await Transaction.create({
         usersId: req.body.userId,
-        transferProof: req.body.transferProof,
+        transferProof: req.files.transferProof[0].filename,
         remainingActive: 30,
         userStatus: "Active",
         paymentStatus: "Approved",

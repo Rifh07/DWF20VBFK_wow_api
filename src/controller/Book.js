@@ -66,7 +66,6 @@ exports.addBooks = async (req, res) => {
       author: Joi.string().required(),
       isbn: Joi.number().required(),
       about: Joi.string().required(),
-      bookFile: Joi.string().required(),
     });
 
     const { error } = schema.validate(req.body);
@@ -77,7 +76,17 @@ exports.addBooks = async (req, res) => {
         message: error.details[0].message,
       });
 
-    const book = await Book.create(req.body);
+      const book = await Book.create({
+        ...req.body,
+        coverFile: req.files.coverFile[0].filename,
+        bookFile: req.files.bookFile[0].filename,
+      });
+
+      if (!book)
+        return res.status(400).send({
+          status: "unsuccess",
+          message: "Upload Book Unsuccess",
+        });
 
     const secretKey = "DWF20VBFK_wow";
     const token = jwt.sign(

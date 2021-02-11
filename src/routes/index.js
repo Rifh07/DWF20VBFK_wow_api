@@ -3,6 +3,8 @@ const router = express.Router();
 
 // middleware
 const { Authorization } = require("../middlewares/Authorization");
+const { uploadBook } = require("../middlewares/UploadBook");
+const { uploadTransaction } = require("../middlewares/UploadTransaction");
 
 // controller
 const { userRegistration, userLogin } = require("../controller/Auth");
@@ -21,12 +23,12 @@ router.delete("/users/:id", deleteUsers);
 // router Book
 router.get("/books", getBooks);
 router.get("/books/:id", getBooksDetail);
-router.post("/books", Authorization, addBooks);
+router.post("/books", Authorization, uploadBook("coverFile", "bookFile"), addBooks);
 router.put("/books/:id", Authorization, editBooks);
 router.delete("/books/:id", Authorization, deleteBooks);
 
 // router Transaction
-router.post("/transaction", Authorization, addTransaction);
+router.post("/transaction", Authorization, uploadTransaction("transferProof"), addTransaction);
 router.patch("/transaction/:id", Authorization, editTransaction);
 router.get("/transaction/:id", Authorization, getTransactionDetail);
 router.get("/transaction", Authorization, getTransaction);

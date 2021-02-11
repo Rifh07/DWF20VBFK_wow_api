@@ -31,7 +31,7 @@ exports.userRegistration = async (req, res) => {
     if (checkEmail)
       return res.status(400).send({
         status: "unsuccess",
-        message: `Email already exsited`,
+        message: `Email already exists`,
       });
 
     const hashedStrength = 10;
@@ -70,3 +70,63 @@ exports.userRegistration = async (req, res) => {
   }
 };
 
+// User Login
+exports.userLogin = async (req, res) => {
+  try {
+    const schema = Joi.object({
+      email: Joi.string().email().required(),
+      password: Joi.string().required(),
+    });
+
+    const { error } = schema.validate(req.body);
+
+    if (error)
+      return res.status(400).send({
+        message: error.details[0].message,
+      });
+
+    const checkEmail = await User.findOne({
+      where: {
+        email: req.body.email,
+      },
+    });
+
+    if (!checkEmail)
+      return res.status(400).send({
+        status: "unsuccess",
+        message: "Your Credentials is not valid",
+      });
+
+    const validPass = await bcrypt.compare(req.body.password, checkEmail.password);
+
+    if (!validPass)
+      return res.status(400).send({
+        status: "unsuccess",
+        message: "Your Credentials is not valid",
+      });
+
+    const secretKey = "DWF20VBFK_wow";
+    const token = jwt.sign(
+      {
+        id: checkEmail.id,
+      },
+      secretKey
+    );
+
+    const email = req.body.email;
+
+    res.send({
+        status: "Success",
+        data: {
+          user: {
+            email,
+            token
+          },
+        },
+      });
+  } catch (error) {
+    res.status(500).send({
+      status: "Server Error",
+    });
+  }
+};

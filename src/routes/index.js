@@ -5,9 +5,14 @@ const router = express.Router();
 const { Authorization } = require("../middlewares/Authorization");
 
 // controller
+const { userRegistration } = require("../controller/Auth");
 const { getUsers, deleteUsers } = require("../controller/Users");
 const { getBooks, getBooksDetail, addBooks, editBooks, deleteBooks } = require("../controller/Book");
 const { addTransaction, editTransaction, getTransactionDetail, getTransaction } = require("../controller/Transaction");
+
+// router Auth
+router.post("/register", userRegistration);
+// router.delete("/books/:id", Authorization, deleteBooks);
 
 // router Users
 router.get("/users", getUsers);

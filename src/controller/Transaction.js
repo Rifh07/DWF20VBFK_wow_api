@@ -14,7 +14,8 @@ exports.addTransaction = async (req, res) => {
 
     if (error)
       return res.status(400).send({
-        status: error.details[0].message,
+        status: "unsuccess",
+        message: error.details[0].message,
       });
 
 
@@ -29,7 +30,8 @@ exports.addTransaction = async (req, res) => {
 
     if (!user) {
         return res.send({
-          status: `User with id ${req.body.userId} Not Existed`,
+          status: "unsuccess",
+          message: `User with id ${req.body.userId} Not Existed`,
         });
       }
 
@@ -55,8 +57,7 @@ exports.addTransaction = async (req, res) => {
         transaction
       },
     });
-  } catch (err) {
-    console.log(err);
+  } catch (error) {
     res.status(500).send({
       status: "Server Error",
     });
@@ -79,6 +80,7 @@ exports.editTransaction = async (req, res) => {
 
     if (!transaction) {
       return res.send({
+        status: "unsuccess",
         message: `Transaction with id ${id} Not Existed`,
       });
     }
@@ -91,6 +93,7 @@ exports.editTransaction = async (req, res) => {
 
     if (error)
       return res.status(400).send({
+        status: "unsuccess",
         message: error.details[0].message,
       });
 
@@ -131,7 +134,6 @@ exports.editTransaction = async (req, res) => {
       },
     });
   } catch (error) {
-    console.log(error);
     res.status(500).send({
       status: "Server Error",
     });
@@ -161,7 +163,8 @@ exports.getTransactionDetail = async (req, res) => {
 
     if (!transaction) {
       return res.send({
-        status: `Transaction with id ${id} Not Existed`,
+        status: "unsuccess",
+        message: `Transaction with id ${id} Not Existed`,
       });
     }
     res.send({
@@ -171,7 +174,6 @@ exports.getTransactionDetail = async (req, res) => {
       },
     });
   } catch (error) {
-    console.log(error);
     res.status(500).send({
       status: "Server Error",
     });
@@ -181,7 +183,7 @@ exports.getTransactionDetail = async (req, res) => {
 // Get All Transaction
 exports.getTransaction = async (req, res) => {
   try {
-    const transaction = await Transaction.findAll({
+    const transactions = await Transaction.findAll({
       include: {
         model: User,
         as: "users",
@@ -194,20 +196,20 @@ exports.getTransaction = async (req, res) => {
       },
     });
 
-    if (!transaction) {
+    if (!transactions) {
       return res.send({
-        status: "Transactions Not Existed",
+        status: "unsuccess",
+        message: "Transactions Not Existed",
       });
     }
 
     res.send({
       status: "Success",
       data: {
-        transaction,
+        transactions,
       },
     });
   } catch (error) {
-    console.log(error);
     res.status(500).send({
       status: "Server Error",
     });

@@ -16,7 +16,7 @@ exports.Authorization  = (req, res, next) => {
     const secretKey = "DWF20VBFK_wow";
     const verified = jwt.verify(token, secretKey);
 
-    req.book = verified;
+    req.user = verified;
     next();
   } catch (error) {
     res.status(400).send({

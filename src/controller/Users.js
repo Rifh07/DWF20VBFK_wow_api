@@ -15,7 +15,6 @@ exports.getUsers = async (req, res) => {
       },
     });
   } catch (error) {
-    console.log(err);
     res.status(500).send({
       status: "Server Error",
     });
@@ -27,6 +26,19 @@ exports.deleteUsers = async (req, res) => {
   try {
     const { id } = req.params;
 
+    const user = await User.findOne({
+      where: {
+        id: id,
+      },
+    });
+
+    if (!user) {
+      return res.send({
+        status: "unsuccess",
+        message: `User with id ${id} Not Existed`,
+      });
+    }
+
     await User.destroy({
       where: {
         id,
@@ -35,14 +47,14 @@ exports.deleteUsers = async (req, res) => {
         exclude: ["fullName", "password", "token", "createdAt", "updatedAt"],
       },
     });
+    
     res.send({
       status: "Success",
       data: {
         id: id,
       },
     });
-  } catch (err) {
-    console.log(err);
+  } catch (error) {
     res.status(500).send({
       status: "Server Error",
     });

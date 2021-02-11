@@ -5,7 +5,7 @@ const jwt = require("jsonwebtoken");
 // Get All Book
 exports.getBooks = async (req, res) => {
   try {
-    const book = await Book.findAll({
+    const books = await Book.findAll({
       attributes: {
         exclude: ["createdAt", "updatedAt"],
       },
@@ -13,11 +13,10 @@ exports.getBooks = async (req, res) => {
     res.send({
       status: "Success",
       data: {
-        book,
+        books,
       },
     });
   } catch (error) {
-    console.log(error);
     res.status(500).send({
       status: "Server Error",
     });
@@ -37,6 +36,12 @@ exports.getBooksDetail = async (req, res) => {
         exclude: ["createdAt", "updatedAt"],
       },
     });
+    if (!book) {
+      return res.send({
+        status: "unsuccess",
+        message: `Book with id ${id} Not Existed`,
+      });
+    }
     res.send({
       status: "Success",
       data: {
@@ -44,7 +49,6 @@ exports.getBooksDetail = async (req, res) => {
       },
     });
   } catch (error) {
-    console.log(error);
     res.status(500).send({
       status: "Server Error",
     });
@@ -69,6 +73,7 @@ exports.addBooks = async (req, res) => {
 
     if (error)
       return res.status(400).send({
+        status: "unsuccess",
         message: error.details[0].message,
       });
 
@@ -89,7 +94,6 @@ exports.addBooks = async (req, res) => {
       },
     });
   } catch (error) {
-    console.log(error);
     res.status(500).send({
       status: "Server Error",
     });
@@ -109,6 +113,7 @@ exports.editBooks = async (req, res) => {
 
     if (!books) {
       return res.send({
+        status: "unsuccess",
         message: `Book with id ${id} Not Existed`,
       });
     }
@@ -128,6 +133,7 @@ exports.editBooks = async (req, res) => {
 
     if (error)
       return res.status(400).send({
+        status: "unsuccess",
         message: error.details[0].message,
       });
 
@@ -158,7 +164,6 @@ exports.editBooks = async (req, res) => {
       },
     });
   } catch (error) {
-    console.log(error);
     res.status(500).send({
       status: "Server Error",
     });
@@ -178,6 +183,7 @@ exports.deleteBooks = async (req, res) => {
 
     if (!books) {
       return res.send({
+        status: "unsuccess",
         message: `Book with id ${id} Not Existed`,
       });
     }
@@ -194,7 +200,6 @@ exports.deleteBooks = async (req, res) => {
       },
     });
   } catch (error) {
-    console.log(error);
     res.status(500).send({
       status: "Server Error",
     });

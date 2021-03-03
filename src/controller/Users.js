@@ -1,11 +1,12 @@
 const { User } = require("../../models");
+const Joi = require("joi");
 
 // Get All Users
 exports.getUsers = async (req, res) => {
   try {
     const users = await User.findAll({
       attributes: {
-        exclude: ["password", "token", "createdAt", "updatedAt"],
+        exclude: ["password", "createdAt", "updatedAt"],
       },
     });
     res.send({
@@ -21,37 +22,58 @@ exports.getUsers = async (req, res) => {
   }
 };
 
-// Delete Users By ID
-exports.deleteUsers = async (req, res) => {
+// Edit Users By ID
+exports.editUsers = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const user = await User.findOne({
+    const users = await User.findOne({
       where: {
         id: id,
       },
     });
 
-    if (!user) {
+    if (!users) {
       return res.send({
         status: "unsuccess",
         message: `User with id ${id} Not Existed`,
       });
     }
 
-    await User.destroy({
+    const schema = Joi.object({
+      fullName: Joi.string().required(),
+      gender: Joi.string().required(),
+      phone: Joi.number().required(),
+      address: Joi.string().required(),
+    });
+    
+    const { error } = schema.validate(req.body);
+
+    if (error)
+      return res.status(400).send({
+        status: "unsuccess",
+        message: error.details[0].message,
+      });
+
+    await User.update(req.body, {
       where: {
         id,
       },
+    });
+
+    const user = await User.findOne({
+      where: {
+        id: id,
+      },
       attributes: {
-        exclude: ["fullName", "password", "token", "createdAt", "updatedAt"],
+        exclude: ["password", "createdAt", "updatedAt"],
       },
     });
-    
+
     res.send({
       status: "Success",
       data: {
-        id: id,
+        user,
       },
     });
   } catch (error) {

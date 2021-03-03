@@ -10,7 +10,9 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // define association here
+      Book.hasMany(models.ListBook, {
+        as : "listBooks"
+      });
     }
   };
   Book.init({
@@ -19,7 +21,7 @@ module.exports = (sequelize, DataTypes) => {
     pages: DataTypes.INTEGER,
     author: DataTypes.STRING,
     isbn: DataTypes.STRING,
-    about: DataTypes.STRING,
+    about: DataTypes.TEXT,
     coverFile: DataTypes.STRING,
     bookFile: DataTypes.STRING
   }, {

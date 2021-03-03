@@ -37,7 +37,7 @@ exports.userRegistration = async (req, res) => {
     const hashedStrength = 10;
     const hashedPassword = await bcrypt.hash(req.body.password, hashedStrength);
 
-    const user = await User.create({
+    const user_create = await User.create({
       ...req.body,
       password: hashedPassword,
       role: "users",
@@ -47,22 +47,27 @@ exports.userRegistration = async (req, res) => {
     const secretKey = "DWF20VBFK_wow";
     const token = jwt.sign(
       {
-        id: User.id,
+        id: user_create.id,
       },
       secretKey
     );
 
-    const email = req.body.email;
-
-    res.send({
-      status: "Success",
-      data: {
-        user: {
-          email,
-          token,
-        },
+    const user = await User.findOne({
+      where: {
+        email: req.body.email,
+      },
+      attributes: {
+        exclude: ["password", "createdAt", "updatedAt"],
       },
     });
+
+    res.send({
+        status: "success",
+        data: {
+          user,
+          token
+        },
+      });
   } catch (error) {
     res.status(500).send({
       status: "Server Error",
@@ -85,19 +90,19 @@ exports.userLogin = async (req, res) => {
         message: error.details[0].message,
       });
 
-    const checkEmail = await User.findOne({
+    const user_find = await User.findOne({
       where: {
         email: req.body.email,
       },
     });
 
-    if (!checkEmail)
+    if (!user_find)
       return res.status(400).send({
         status: "unsuccess",
         message: "Your Credentials is not valid",
       });
 
-    const validPass = await bcrypt.compare(req.body.password, checkEmail.password);
+    const validPass = await bcrypt.compare(req.body.password, user_find.password);
 
     if (!validPass)
       return res.status(400).send({
@@ -108,25 +113,55 @@ exports.userLogin = async (req, res) => {
     const secretKey = "DWF20VBFK_wow";
     const token = jwt.sign(
       {
-        id: checkEmail.id,
+        id: user_find.id,
       },
       secretKey
     );
 
-    const email = req.body.email;
+    const user = await User.findOne({
+      where: {
+        email: req.body.email,
+      },
+      attributes: {
+        exclude: ["password", "createdAt", "updatedAt"],
+      },
+    });
 
     res.send({
-        status: "Success",
+        status: "success",
         data: {
-          user: {
-            email,
-            token
-          },
+          user,
+          token
         },
       });
   } catch (error) {
     res.status(500).send({
       status: "Server Error",
+    });
+  }
+};
+
+exports.checkAuth = async (req, res) => {
+  try {
+    const user = await User.findOne({
+      where: {
+        id: req.user.id,
+      },
+      attributes: {
+        exclude: ["password", "createdAt", "updatedAt"],
+      },
+    });
+
+    res.send({
+      status: "success",
+      message: "User Valid",
+      data: {
+        user,
+      },
+    });
+  } catch (error) {
+    res.status(500).send({
+      message: "Server Error",
     });
   }
 };

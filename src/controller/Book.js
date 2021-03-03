@@ -1,4 +1,4 @@
-const { Book } = require("../../models");
+const { Book, ListBook } = require("../../models");
 const Joi = require("joi");
 const jwt = require("jsonwebtoken");
 
@@ -61,10 +61,10 @@ exports.addBooks = async (req, res) => {
     const schema = Joi.object({
       title: Joi.string().required(),
       publicationDate: Joi.string().required(),
-      pages: Joi.number().required(),
+      pages: Joi.string().required(),
       publicationDate: Joi.string().required(),
       author: Joi.string().required(),
-      isbn: Joi.number().required(),
+      isbn: Joi.string().required(),
       about: Joi.string().required(),
     });
 
@@ -209,6 +209,101 @@ exports.deleteBooks = async (req, res) => {
       },
     });
   } catch (error) {
+    res.status(500).send({
+      status: "Server Error",
+    });
+  }
+};
+
+// Get List Books
+exports.getListBooks = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const books = await ListBook.findAll({
+      where: {
+        usersId: id,
+      },
+      include: {
+        model: Book,
+        as: "books",
+        attributes: {
+          exclude: ["publicationDate", "pages", "isbn", "about", "bookFile", "createdAt", "updatedAt"],
+        },
+      },
+      attributes: {
+        exclude: ["id", "usersId", "BookId", "UserId", "createdAt", "updatedAt"],
+      },
+    });
+
+    res.send({
+      status: "Success",
+      data: {
+        books
+      },
+    });
+
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      status: "Server Error",
+    });
+  }
+}
+
+// Add List Book
+exports.addListBooks = async (req, res) => {
+  try {
+    const schema = Joi.object({
+      usersId: Joi.number().required(),
+      booksId: Joi.number().required(),
+    });
+
+    const { error } = schema.validate(req.body);
+
+    if (error)
+      return res.status(400).send({
+        status: "unsuccess",
+        message: error.details[0].message,
+      });
+
+    const { usersId, booksId} = req.body;
+    const book = await ListBook.findOne({
+      where: {
+        usersId,
+        booksId,
+      },
+      attributes: {
+        exclude: ["BookId", "UserId"],
+      },
+    });
+
+    if (book)
+      return res.send({
+        status: "unsuccess",
+        message: "The book is already on the list",
+      });
+
+      const addList = await ListBook.create({
+        ...req.body,
+        usersId,
+        booksId,
+      });
+
+      if (!addList)
+        return res.send({
+          status: "unsuccess",
+          message: "Add List Book Unsuccess",
+        });
+
+    res.send({
+      status: "Success",
+      data: {
+        addList,
+      },
+    });
+  } catch (error) {
+    console.log(error);
     res.status(500).send({
       status: "Server Error",
     });

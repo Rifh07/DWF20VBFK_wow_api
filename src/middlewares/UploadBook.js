@@ -7,9 +7,9 @@ exports.uploadBook = (coverFile, bookFile) => {
   const storage = multer.diskStorage({
     destination: function (req, file, cb) {
       if (file.fieldname === coverFile){
-        cb(null, "Uploads/Cover"); //lokasih penyimpan file
+        cb(null, "../client/public/Img/BookCover"); //lokasi penyimpan file
       } else {
-        cb(null, "Uploads/ePUB"); //lokasih penyimpan file
+        cb(null, "../client/public/Img/Book"); //lokasi penyimpan file
       }
     },
     filename: function (req, file, cb) {
@@ -20,7 +20,7 @@ exports.uploadBook = (coverFile, bookFile) => {
   //function untuk filter / validasi file berdasarkan type
   const fileFilter = function (req, file, cb) {
     if (file.fieldname === coverFile) {
-      if (!file.originalname.match(/\.(jpg|jpeg|png)$/)) {
+      if (!file.originalname.match(/\.(JPG|jpg|JPEG|jpeg|PNG|png)$/)) {
         req.fileValidationError = {
           status: "unsuccess",
           message: "Only image files are allowed!",

@@ -6,7 +6,8 @@ const jwt = require("jsonwebtoken");
 exports.addTransaction = async (req, res) => {
   try {
     const schema = Joi.object({
-      userId: Joi.number().required(),
+      userId: Joi.string().required(),
+      accountNumber: Joi.string().required(),
     });
 
     const { error } = schema.validate(req.body);
@@ -37,9 +38,10 @@ exports.addTransaction = async (req, res) => {
       const transaction = await Transaction.create({
         usersId: req.body.userId,
         transferProof: req.files.transferProof[0].filename,
+        accountNumber: req.body.accountNumber,
         remainingActive: 30,
-        userStatus: "Active",
-        paymentStatus: "Approved",
+        userStatus: "Not Active",
+        paymentStatus: "Pending",
       });
 
     const secretKey = "DWF20VBFK_wow";
@@ -85,6 +87,8 @@ exports.editTransaction = async (req, res) => {
     }
 
     const schema = Joi.object({
+      remainingActive: Joi.number().required(),
+      userStatus: Joi.string().required(),
       paymentStatus: Joi.string().required(),
     });
 
@@ -190,6 +194,9 @@ exports.getTransaction = async (req, res) => {
           exclude: ["email", "token", "password", "createdAt", "updatedAt"],
         },
       },
+      order: [
+        ['createdAt', 'DESC'],
+      ],
       attributes: {
         exclude: ["createdAt", "updatedAt", "UserId"],
       },
@@ -206,6 +213,42 @@ exports.getTransaction = async (req, res) => {
       status: "Success",
       data: {
         transactions,
+      },
+    });
+  } catch (error) {
+    res.status(500).send({
+      status: "Server Error",
+    });
+  }
+};
+
+// Get Transaction By Id User Desc
+exports.getTransactionByIdUserDesc = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const transaction = await Transaction.findOne({
+      where: {
+        usersId: id,
+      },
+      order: [
+        ['createdAt', 'DESC'],
+      ],
+      attributes: {
+        exclude: ["createdAt", "updatedAt", "UserId"],
+      },
+    });
+
+    if (!transaction) {
+      return res.send({
+        status: "unsuccess",
+        message: `User with id ${id} Not Existed`,
+      });
+    }
+    res.send({
+      status: "Success",
+      data: {
+        transaction,
       },
     });
   } catch (error) {

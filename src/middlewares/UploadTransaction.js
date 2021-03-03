@@ -3,10 +3,10 @@ const multer = require("multer");
 exports.uploadTransaction = (fileTransaction) => {
   const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-      cb(null, "Uploads/Transaction");
+      cb(null, "../client/public/Img/Transaction");
     },
     filename: function (req, file, cb) {
-      cb(null, Date.now() + "-" + file.originalname);
+      cb(null,  Date.now() + "-" + file.originalname);
     },
   });
 
